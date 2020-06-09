@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
 
         if(user != null){
             finish();
-            startActivity(new Intent(MainActivity.this, GameActivity.class));
+            startActivity(new Intent(MainActivity.this, PickActivity.class));
         }
 
         login.setOnClickListener(new View.OnClickListener() {
@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
                 if(task.isSuccessful()){
                     progressDialog.dismiss();
                     Toast.makeText(MainActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(MainActivity.this, GameActivity.class));
+                    startActivity(new Intent(MainActivity.this, PickActivity.class));
                 }else{
                     progressDialog.dismiss();
                     Toast.makeText(MainActivity.this, "Login Failed", Toast.LENGTH_SHORT).show();

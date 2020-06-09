@@ -2,33 +2,33 @@ package com.example.androidapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.auth.FirebaseAuth;
+import java.util.Random;
 
-public class GameActivity extends AppCompatActivity implements View.OnClickListener {
+public class SingleActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Button[][] buttons = new Button[3][3];
     private boolean player1Turn = true;
     private int roundCount;
-    private int player1Points;
-    private int player2Points;
-    private TextView textViewPlayer1;
-    private TextView textViewPlayer2;
+    private int won;
+    private int lost;
+    private TextView textViewWon;
+    private TextView textViewLost;
+    Random rand = new Random();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_game);
+        setContentView(R.layout.activity_single);
 
-        textViewPlayer1 = findViewById(R.id.text_view_p1);
-        textViewPlayer2 = findViewById(R.id.text_view_p2);
+        textViewWon = (TextView)findViewById(R.id.text_won);
+        textViewLost = (TextView)findViewById(R.id.text_lost);
+
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 String buttonID = "button_" + i + j;
@@ -37,14 +37,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 buttons[i][j].setOnClickListener(this);
             }
         }
-
-        Button buttonReset = findViewById(R.id.button_reset);
-        buttonReset.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                resetGame();
-            }
-        });
     }
 
     @Override
@@ -52,23 +44,34 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         if (!((Button) v).getText().toString().equals("")) {
             return;
         }
-        if (player1Turn) {
-            ((Button) v).setText("X");
-        } else {
-            ((Button) v).setText("O");
-        }
-        roundCount++;
+        ((Button) v).setText("X");
         if (checkForWin()) {
-            if (player1Turn) {
-                player1Wins();
-            } else {
-                player2Wins();
-            }
+            player1Wins();
         } else if (roundCount == 9) {
             draw();
         } else {
-            player1Turn = !player1Turn;
+            player1Turn = false;
         }
+        roundCount++;
+        randomTurn();
+        if (checkForWin()) {
+            player2Wins();
+        } else if (roundCount == 9) {
+            draw();
+        } else {
+            player1Turn = true;
+        }
+        roundCount++;
+    }
+
+    private void randomTurn(){
+        int a = rand.nextInt(3);
+        int b = rand.nextInt(3);
+        while(!buttons[a][b].getText().toString().equals("")){
+            a = rand.nextInt(3);
+            b = rand.nextInt(3);
+        }
+        buttons[a][b].setText("O");
     }
 
     private boolean checkForWin() {
@@ -105,13 +108,13 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         return false;
     }
     private void player1Wins() {
-        player1Points++;
+        won++;
         Toast.makeText(this, "Player 1 wins!", Toast.LENGTH_SHORT).show();
         updatePointsText();
         resetBoard();
     }
     private void player2Wins() {
-        player2Points++;
+        lost++;
         Toast.makeText(this, "Player 2 wins!", Toast.LENGTH_SHORT).show();
         updatePointsText();
         resetBoard();
@@ -122,8 +125,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void updatePointsText() {
-        textViewPlayer1.setText("Player 1: " + player1Points);
-        textViewPlayer2.setText("Player 2: " + player2Points);
+        textViewWon.setText("Won: " + won);
+        textViewLost.setText("Lost: " + lost);
     }
     private void resetBoard() {
         for (int i = 0; i < 3; i++) {
@@ -135,8 +138,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         player1Turn = true;
     }
     private void resetGame() {
-        player1Points = 0;
-        player2Points = 0;
+        won = 0;
+        lost = 0;
         updatePointsText();
         resetBoard();
     }
@@ -145,16 +148,16 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt("roundCount", roundCount);
-        outState.putInt("player1Points", player1Points);
-        outState.putInt("player2Points", player2Points);
+        outState.putInt("won", won);
+        outState.putInt("lost", lost);
         outState.putBoolean("player1Turn", player1Turn);
     }
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         roundCount = savedInstanceState.getInt("roundCount");
-        player1Points = savedInstanceState.getInt("player1Points");
-        player2Points = savedInstanceState.getInt("player2Points");
+        won = savedInstanceState.getInt("won");
+        lost = savedInstanceState.getInt("lost");
         player1Turn = savedInstanceState.getBoolean("player1Turn");
     }
 }
